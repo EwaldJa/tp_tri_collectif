@@ -1,89 +1,176 @@
 package model;
 
 
+import utils.RandomUtils;
+import utils.exceptions.InvalidArgumentException;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 
 public class World {
 
-    private int size_n, size_m, nbObjA, nbObjB, nbAgent;
+    private int size_x, size_y, nb_Obj_A, nb_Obj_B, nb_Agent, agent_Range;
+    private double k_Plus, k_Minus;
 
     private List<List<Cell>> world;
+    private Map<Agent, Position> agents;
 
-    public World(int size_n, int size_m, int nbObjA, int nbObjB, int nbAgent) {
-        this.size_n = size_n; this.size_m = size_m; this.nbObjA = nbObjA; this.nbObjB = nbObjB; this.nbAgent = nbAgent;
+    public World(int sizeX, int sizeY, int nbObjA, int nbObjB, int nbAgent, int agentRange, double kPlus, double kMinus) {
+        size_x = sizeX; size_y = sizeY; nb_Obj_A = nbObjA; nb_Obj_B = nbObjB; nb_Agent = nbAgent; agent_Range = agentRange; k_Plus = kPlus; k_Minus = kMinus;
+    }
+
+    public List<Agent> init() {
+        /*Initialize the map*/
         world = new ArrayList<>();
-        Random rnd = new Random();
+        for (int lines = 0; lines < size_y; lines++) {
+            List<Cell> line = new ArrayList<>();
+            for(int columns = 0; columns < size_x; columns++) {
+                line.add(new Cell(columns, lines, this)); }
+            world.add(line); }
+
+        /*Add randomly the objects and agents*/
+        int nbObjAToAdd = nb_Obj_A, nbObjBToAdd = nb_Obj_B, nbAgentToAdd = nb_Agent;
+        int randX, randY;
+
+        while(nbObjAToAdd > 0) {
+            randX = RandomUtils.randIntMavVal(size_x);
+            randY = RandomUtils.randIntMavVal(size_y);
+            Cell c = world.get(randY).get(randX);
+            if (c.getObjectType() == Object.OBJECT_TYPE.NONE) {
+                c.addObject(Object.OBJECT_TYPE.TYPE_A);
+                nbObjAToAdd--; } }
+
+        while(nbObjBToAdd > 0) {
+            randX = RandomUtils.randIntMavVal(size_x);
+            randY = RandomUtils.randIntMavVal(size_y);
+            Cell c = world.get(randY).get(randX);
+            if (c.getObjectType() == Object.OBJECT_TYPE.NONE) {
+                c.addObject(Object.OBJECT_TYPE.TYPE_B);
+                nbObjBToAdd--; } }
+
+        agents = new HashMap<>();
+        while(nbAgentToAdd > 0) {
+            randX = RandomUtils.randIntMavVal(size_x);
+            randY = RandomUtils.randIntMavVal(size_y);
+            Cell c = world.get(randY).get(randX);
+            if (!c.hasAgent()) {
+                Agent a = new Agent(this);
+                c.addAgent(a);
+                agents.put(a, new Position(randX, randY, this));
+                nbAgentToAdd--; } }
+
+        return new ArrayList<>(agents.keySet());
     }
 
-    /*
-    public void initialize(int size_n, int size_m, int nbObjA, int nbObjB, int nbAgent) {
-        world = new ArrayList<>();
-        world.add(firstStack);
-        for (int i = 1; i < nbLocation; i++) {
-            List<MetaBloc> loc = new ArrayList<>();
-            loc.add(table);
-            world.add(loc); }
+    public boolean move(Direction dir, Agent agent) {
+        Position pos = agents.get(agent), nextPos = new Position(pos.getX(), pos.getY(), this);
+        for(int i = 0; i < agent_Range; i++) {
+            nextPos.addDirection(dir);
+            if (world.get(nextPos.getY()).get(nextPos.getX()).hasAgent()){
+                return false; } }
+        world.get(nextPos.getY()).get(nextPos.getX()).addAgent(world.get(pos.getY()).get(pos.getX()).removeAgent());
+        agents.put(agent, nextPos);
+        return true;
     }
 
-
-
-    public List<MetaBloc> getAvailableLocations(Bloc toCheck) {
-        List<MetaBloc> availableLocations = new ArrayList<>();
-        for (int i = 0; i < nbLocation - 1; i++) {
-            List<MetaBloc> loc_i = world.get(i);
-            MetaBloc summit = loc_i.get(loc_i.size() - 1);
-            if (!summit.equals(toCheck)) {
-                availableLocations.add(summit); } }
-        return availableLocations;
+    public int getSameObjNearbyNumber(Object.OBJECT_TYPE obj_type, Agent agent) {
+        if (obj_type == Object.OBJECT_TYPE.NONE) {
+            throw new InvalidArgumentException("Object type given to 'getSameObjNearbyNumber' method is of type NONE"); }
+        Position pos = agents.get(agent);
+        int x = pos.getX(), y = pos.getY();
+        int nbSameObj = 0;
+        Position north = pos.newAddDirection(Direction.getNORTH());
+        Position south = pos.newAddDirection(Direction.getSOUTH());
+        Position east = pos.newAddDirection(Direction.getEAST());
+        Position west = pos.newAddDirection(Direction.getWEST());
+        try {
+            if (world.get(north.getY()).get(north.getX()).getObjectType() == obj_type) { nbSameObj++; }
+            if (world.get(south.getY()).get(south.getX()).getObjectType() == obj_type) { nbSameObj++; }
+            if (world.get(east.getY()).get(east.getX()).getObjectType() == obj_type) { nbSameObj++; }
+            if (world.get(west.getY()).get(west.getX()).getObjectType() == obj_type) { nbSameObj++; }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return nbSameObj;
     }
 
-    public boolean canMove(Bloc toCheck) throws BlocNotFoundException {
-        int currentLocation = getLocationOfBloc(toCheck);
-        return world.get(currentLocation).indexOf(toCheck) == (world.get(currentLocation).size() - 1);
+    public Object.OBJECT_TYPE getCurrentCellObjectType(Agent agent) {
+        Object.OBJECT_TYPE type = Object.OBJECT_TYPE.NONE;
+        try {
+            Position pos = agents.get(agent);
+            type =  world.get(pos.getY()).get(pos.getX()).getObjectType();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return type;
     }
 
-    public MetaBloc moveToLocation(Bloc toMove, MetaBloc whereTo) throws MovementUnavailableException, BlocNotFoundException {
-        int newLocation = getLocationOfBloc(whereTo);
-        int currentLocation = getLocationOfBloc(toMove);
-        List<MetaBloc> currentLoc = world.get(currentLocation);
-        List<MetaBloc> newLoc = world.get(newLocation);
-        if (currentLoc.indexOf(toMove) != (currentLoc.size() - 1)) { throw new MovementUnavailableException("Bloc #" + toMove.getBlocName() + " is not at the summit of the location #" + currentLocation); }
-        else {
-            currentLoc.remove(toMove);
-            newLoc.add(toMove);
-            return newLoc.get(newLoc.size() - 2); }
+    public void addObjectCurrentCell(Agent agent, Object.OBJECT_TYPE pickedObj) {
+        try {
+            Position pos = agents.get(agent);
+            world.get(pos.getY()).get(pos.getX()).addObject(pickedObj);
+        }
+            catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private int getLocationOfBloc(MetaBloc bloc) throws BlocNotFoundException {
-        boolean hasToBeFirst = false;
-        if (bloc instanceof Table) { hasToBeFirst = true; }
-        for (int i = 0; i < nbLocation - 1; i++) {
-            List<MetaBloc> loc = world.get(i);
-            if (loc.indexOf(bloc) != -1) {
-                if (hasToBeFirst) {
-                    if (loc.indexOf(bloc) == (loc.size()-1)) {
-                        return i; } }
-                else {
-                    return i; } } }
-        throw new BlocNotFoundException("Bloc #" + bloc.getBlocName() + "does not exists in the world");
+    public Object.OBJECT_TYPE removeObjectCurrentCell(Agent agent) {
+        Object.OBJECT_TYPE type = Object.OBJECT_TYPE.NONE;
+        try {
+            Position pos = agents.get(agent);
+            type = world.get(pos.getY()).get(pos.getX()).removeObject(); }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return type;
     }
 
+    public int getSize_x() {
+        return size_x;
+    }
+
+    public int getSize_y() {
+        return size_y;
+    }
+
+    public int getNb_Obj_A() {
+        return nb_Obj_A;
+    }
+
+    public int getNb_Obj_B() {
+        return nb_Obj_B;
+    }
+
+    public int getNb_Agent() {
+        return nb_Agent;
+    }
+
+    public double getK_Plus() {
+        return k_Plus;
+    }
+
+    public double getK_Minus() {
+        return k_Minus;
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for(int i = nbBlocs; i >= 1; i--) {
-            for (int j = 0; j < nbLocation - 1; j ++) {
-                sb.append(blocTitle(world.get(j), i)).append(" ");
-            }
-            sb.append("\n"); }
+        for (int lines = 0; lines < size_y; lines++) {
+            List<Cell> line = new ArrayList<>();
+            for(int columns = 0; columns < size_x; columns++) {
+                sb.append("|").append(world.get(lines).get(columns).getDisplayName()); }
+            sb.append("|\n"); }
         return sb.toString();
     }
 
-    public String blocTitle(List<MetaBloc> pile, int index) {
-        return ((pile.size() > index) ? ("|" + pile.get(index).getBlocName() + "|") : "| |");
+    public void display() {
+        System.out.println(toString());
     }
-    */
-
 
 }

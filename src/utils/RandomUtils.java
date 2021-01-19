@@ -7,6 +7,15 @@ import java.util.Random;
 
 public class RandomUtils {
 
+    private static final int BOUND_FOR_DOUBLES = Integer.MAX_VALUE;
+
+    /***
+     * @return a random double value >= 0 and <1
+     */
+    public static double randDouble() {
+        return (new Random().nextInt(BOUND_FOR_DOUBLES)/(BOUND_FOR_DOUBLES - 0.0));
+    }
+
     /***
      * @return a random integer value >= 0
      */
@@ -48,7 +57,10 @@ public class RandomUtils {
      * @return a random integer value >= minNb and < maxNb
      */
     public static int randIntBetweenAndNot(int minNb, int maxNb, List<Integer> values) {
-        //TODO : method
-        return -1;
+        int res = randIntBetween(minNb, maxNb);
+        while(values.contains(res)){
+            res = randIntBetween(minNb, maxNb);
+        }
+        return res;
     }
 }
