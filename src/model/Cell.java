@@ -10,7 +10,7 @@ public class Cell {
     private Object.OBJECT_TYPE object;
     private Agent agent;
 
-    public Cell(int x_coord, int y_coord, World w) {
+    public Cell(int x_coord, int y_coord, Environment w) {
         pos = new Position(x_coord, y_coord, w);
         agent = null;
         object = Object.OBJECT_TYPE.NONE;

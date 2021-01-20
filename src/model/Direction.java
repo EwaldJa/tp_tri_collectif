@@ -10,9 +10,18 @@ public class Direction {
         SOUTH = new Direction(0, +1);
         EAST = new Direction(+1, 0);
         WEST = new Direction(-1, 0);
+        /* Supprimer les commentaires pour activer les déplacements en diagonale
+        NORTH_EAST = new Direction(+1, -1);
+        NORTH_WEST = new Direction(-1, -1);
+        SOUTH_EAST = new Direction(+1, +1);
+        SOUTH_WEST = new Direction(-1, +1);
+        */
     }
 
     private static Direction NORTH, SOUTH, EAST, WEST;
+    /* Supprimer les commentaires pour activer les déplacements en diagonale
+    private static Direction NORTH_EAST, NORTH_WEST, SOUTH_EAST, SOUTH_WEST;
+    */
     private static List<Direction> ALL_DIRECTIONS;
 
     private int x, y;
@@ -34,6 +43,12 @@ public class Direction {
             ALL_DIRECTIONS.add(SOUTH);
             ALL_DIRECTIONS.add(EAST);
             ALL_DIRECTIONS.add(WEST);
+            /* Supprimer les commentaires pour activer les déplacements en diagonale
+            ALL_DIRECTIONS.add(NORTH_EAST);
+            ALL_DIRECTIONS.add(NORTH_WEST);
+            ALL_DIRECTIONS.add(SOUTH_EAST);
+            ALL_DIRECTIONS.add(SOUTH_WEST);
+            */
         }
         return ALL_DIRECTIONS;
     }

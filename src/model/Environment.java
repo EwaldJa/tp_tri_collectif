@@ -9,16 +9,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class World {
+public class Environment {
 
     private int size_x, size_y, nb_Obj_A, nb_Obj_B, nb_Agent, agent_Range;
-    private double k_Plus, k_Minus;
+    private double k_Plus, k_Minus, error_ratio;
+    private boolean use_error;
 
     private List<List<Cell>> world;
     private Map<Agent, Position> agents;
 
-    public World(int sizeX, int sizeY, int nbObjA, int nbObjB, int nbAgent, int agentRange, double kPlus, double kMinus) {
-        size_x = sizeX; size_y = sizeY; nb_Obj_A = nbObjA; nb_Obj_B = nbObjB; nb_Agent = nbAgent; agent_Range = agentRange; k_Plus = kPlus; k_Minus = kMinus;
+    public Environment(int sizeX, int sizeY, int nbObjA, int nbObjB, int nbAgent, int agentRange, double kPlus, double kMinus, boolean useError, double errorRatio) {
+        size_x = sizeX; size_y = sizeY; nb_Obj_A = nbObjA; nb_Obj_B = nbObjB; nb_Agent = nbAgent; agent_Range = agentRange; k_Plus = kPlus; k_Minus = kMinus; use_error = useError; error_ratio = errorRatio;
     }
 
     public List<Agent> init() {
@@ -150,12 +151,24 @@ public class World {
         return nb_Agent;
     }
 
+    public int getAgent_Range() {
+        return agent_Range;
+    }
+
     public double getK_Plus() {
         return k_Plus;
     }
 
     public double getK_Minus() {
         return k_Minus;
+    }
+
+    public boolean useError() {
+        return use_error;
+    }
+
+    public double getError_ratio() {
+        return error_ratio;
     }
 
     @Override

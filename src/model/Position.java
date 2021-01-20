@@ -3,10 +3,10 @@ package model;
 public class Position {
 
     private int x, y;
-    private World world;
+    private Environment environment;
 
-    public Position(int x_coord, int y_coord, World w) {
-        world = w; setX(x_coord); setY(y_coord);
+    public Position(int x_coord, int y_coord, Environment w) {
+        environment = w; setX(x_coord); setY(y_coord);
     }
 
     public Position addDirection(Direction dir) {
@@ -16,7 +16,7 @@ public class Position {
     }
 
     public Position newAddDirection(Direction dir) {
-        return new Position(x + dir.getX(), y + dir.getY(), world);
+        return new Position(x + dir.getX(), y + dir.getY(), environment);
     }
 
     public int addX(int toAdd) {
@@ -36,12 +36,12 @@ public class Position {
     }
 
     public int setX(int newX) {
-        x = (newX % world.getSize_x() + world.getSize_x()) % world.getSize_x();
+        x = (newX % environment.getSize_x() + environment.getSize_x()) % environment.getSize_x();
         return x;
     }
 
     public int setY(int newY) {
-        y = (newY % world.getSize_y() + world.getSize_y()) % world.getSize_y();
+        y = (newY % environment.getSize_y() + environment.getSize_y()) % environment.getSize_y();
         return y;
     }
 

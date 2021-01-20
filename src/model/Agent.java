@@ -10,18 +10,22 @@ public class Agent {
     private static int agentNbCounter;
 
     private int agentNb;
-    private World world;
+    private Environment environment;
 
+    private boolean use_error;
+    private double error_ratio;
     private List<Object.OBJECT_TYPE> memory;
 
     private Object.OBJECT_TYPE pickedObj;
     private Object.OBJECT_TYPE objOnCell;
     private double obj_nearby_ratio_f;
 
-    public Agent(World theWorld) {
+    public Agent(Environment theEnvironment) {
         agentNb = agentNbCounter++;
-        world = theWorld;
+        environment = theEnvironment;
 
+        use_error = environment.useError();
+        error_ratio = environment.getError_ratio();
         memory = new ArrayList<>();
 
         pickedObj = Object.OBJECT_TYPE.NONE;
@@ -30,14 +34,28 @@ public class Agent {
     }
 
     public void perception() {
-        objOnCell = world.getCurrentCellObjectType(this);
+        objOnCell = recognizeObject();
         memory.add(objOnCell);
         if(memory.size() > ConstantsUtils.AGENT_MEMORY_SIZE) { memory.remove(0); }
         if(pickedObj == Object.OBJECT_TYPE.NONE) {
             if (objOnCell != Object.OBJECT_TYPE.NONE){
-                obj_nearby_ratio_f = calculateF(world.getSameObjNearbyNumber(objOnCell, this), objOnCell); } }
+                obj_nearby_ratio_f = calculateF(environment.getSameObjNearbyNumber(objOnCell, this), objOnCell); } }
         else {
-            obj_nearby_ratio_f = calculateF(world.getSameObjNearbyNumber(pickedObj, this), pickedObj); }
+            obj_nearby_ratio_f = calculateF(environment.getSameObjNearbyNumber(pickedObj, this), pickedObj); }
+    }
+
+    private Object.OBJECT_TYPE recognizeObject() {
+        Object.OBJECT_TYPE onCell = environment.getCurrentCellObjectType(this);
+        if(!use_error || onCell == Object.OBJECT_TYPE.NONE) {
+            return onCell; }
+        else {
+            if(error_ratio >= RandomUtils.randDouble()) {
+                if(onCell == Object.OBJECT_TYPE.TYPE_A) {
+                    return Object.OBJECT_TYPE.TYPE_B; }
+                else {
+                    return Object.OBJECT_TYPE.TYPE_A; } }
+            else {
+                return onCell; } }
     }
 
     public void action() {
@@ -52,7 +70,7 @@ public class Agent {
         Collections.shuffle(dirs);
         Iterator<Direction> itDir = dirs.iterator();
         try {
-            while (!world.move(itDir.next(), this)); }
+            while (!environment.move(itDir.next(), this)); }
         catch (java.util.NoSuchElementException e) {
             hasMoved = false; }
         return hasMoved;
@@ -60,9 +78,9 @@ public class Agent {
 
     private boolean dropObject() {
         if( (pickedObj != Object.OBJECT_TYPE.NONE) && (objOnCell == Object.OBJECT_TYPE.NONE) ) {
-            double dropProba = Math.pow(( obj_nearby_ratio_f / (world.getK_Minus() + obj_nearby_ratio_f) ), 2.0);
+            double dropProba = Math.pow(( obj_nearby_ratio_f / (environment.getK_Minus() + obj_nearby_ratio_f) ), 2.0);
             if(dropProba >= RandomUtils.randDouble()) {
-                world.addObjectCurrentCell(this, pickedObj);
+                environment.addObjectCurrentCell(this, pickedObj);
                 pickedObj = Object.OBJECT_TYPE.NONE;
                 return true; } }
         return false;
@@ -70,16 +88,32 @@ public class Agent {
 
     private boolean pickObject() {
         if( (objOnCell != Object.OBJECT_TYPE.NONE) && (pickedObj == Object.OBJECT_TYPE.NONE) ) {
-            double pickProba = ( world.getK_Plus() / (world.getK_Plus() + obj_nearby_ratio_f) );
+            double pickProba = ( environment.getK_Plus() / (environment.getK_Plus() + obj_nearby_ratio_f) );
             if(pickProba >= RandomUtils.randDouble()) {
-                pickedObj = world.removeObjectCurrentCell(this);
+                pickedObj = environment.removeObjectCurrentCell(this);
                 objOnCell = Object.OBJECT_TYPE.NONE;
                 return true; } }
         return false;
     }
 
     private double calculateF(int nbSameObjNearby, Object.OBJECT_TYPE obj_type) {
-        return nbSameObjNearby/ConstantsUtils.NB_NEARBY_CELLS;
+        if (!use_error){
+            return nbSameObjNearby/ConstantsUtils.NB_NEARBY_CELLS; }
+        else {
+            int nbObjA = 0, nbObjB = 0, nbObj = 0;
+            Iterator<Object.OBJECT_TYPE> it = memory.iterator();
+            while (it.hasNext()) {
+                Object.OBJECT_TYPE next = it.next();
+                if(next == Object.OBJECT_TYPE.TYPE_A) {
+                    nbObjA++; }
+                else if(next == Object.OBJECT_TYPE.TYPE_B) {
+                    nbObjB++; }
+                else {
+                    nbObj++; } }
+            if(obj_type == Object.OBJECT_TYPE.TYPE_A) {
+                return ( (nbObjA + (nbObjB * error_ratio) ) / nbObj ); }
+            else {
+                return ( (nbObjB + (nbObjA * error_ratio) ) / nbObj ); } }
     }
 
 
@@ -88,7 +122,7 @@ public class Agent {
     }
 
     public Agent clone() {
-        Agent clone = new Agent(world);
+        Agent clone = new Agent(environment);
         clone.agentNb = this.agentNb;
         clone.memory = this.memory;
         clone.pickedObj = this.pickedObj;
