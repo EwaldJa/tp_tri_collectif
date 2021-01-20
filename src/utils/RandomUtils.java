@@ -5,6 +5,9 @@ import utils.exceptions.InvalidBoundsException;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Une classe utilitaire pour les nombres aléatoires que nous utilisons sur de nombreux projets
+ */
 public class RandomUtils {
 
     private static final int BOUND_FOR_DOUBLES = Integer.MAX_VALUE;
