@@ -34,7 +34,7 @@ public class Agent {
     }
 
     public void perception() {
-        objOnCell = recognizeObject();
+        objOnCell = environment.getCurrentCellObjectType(this);
         memory.add(objOnCell);
         if(memory.size() > ConstantsUtils.AGENT_MEMORY_SIZE) { memory.remove(0); }
         if(pickedObj == Object.OBJECT_TYPE.NONE) {
@@ -42,20 +42,6 @@ public class Agent {
                 obj_nearby_ratio_f = calculateF(environment.getSameObjNearbyNumber(objOnCell, this), objOnCell); } }
         else {
             obj_nearby_ratio_f = calculateF(environment.getSameObjNearbyNumber(pickedObj, this), pickedObj); }
-    }
-
-    private Object.OBJECT_TYPE recognizeObject() {
-        Object.OBJECT_TYPE onCell = environment.getCurrentCellObjectType(this);
-        if(!use_error || onCell == Object.OBJECT_TYPE.NONE) {
-            return onCell; }
-        else {
-            if(error_ratio >= RandomUtils.randDouble()) {
-                if(onCell == Object.OBJECT_TYPE.TYPE_A) {
-                    return Object.OBJECT_TYPE.TYPE_B; }
-                else {
-                    return Object.OBJECT_TYPE.TYPE_A; } }
-            else {
-                return onCell; } }
     }
 
     public void action() {
@@ -108,8 +94,7 @@ public class Agent {
                     nbObjA++; }
                 else if(next == Object.OBJECT_TYPE.TYPE_B) {
                     nbObjB++; }
-                else {
-                    nbObj++; } }
+                nbObj++; }
             if(obj_type == Object.OBJECT_TYPE.TYPE_A) {
                 return ( (nbObjA + (nbObjB * error_ratio) ) / nbObj ); }
             else {

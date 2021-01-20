@@ -19,7 +19,7 @@ public class Main {
 
         String initial = environment.toString();
 
-        final int NB_ITER = 3000000;
+        final int NB_ITER = 1000000;
         int currIter = 0;
         while(currIter < NB_ITER) {
             Collections.shuffle(agents);
@@ -31,6 +31,7 @@ public class Main {
                     e.printStackTrace(); }
             }
             if (currIter % 1000  == 0) {
+                System.out.println("\n"+currIter);
                 environment.display(); }
             currIter++; }
 
