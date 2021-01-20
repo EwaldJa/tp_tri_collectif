@@ -11,6 +11,6 @@ public class ConstantsUtils {
     public static final String OBJ_TYPE_A = "A", OBJ_TYPE_B = "B";
     public static final String AGENT_DISP = "X";
 
-    public static final boolean USE_ERROR = true;
+    public static final boolean USE_ERROR = false;
     public static final double ERROR_RATIO = 0.15;
 }

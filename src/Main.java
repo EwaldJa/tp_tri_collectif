@@ -19,7 +19,7 @@ public class Main {
 
         String initial = environment.toString();
 
-        final int NB_ITER = 1000000000;
+        final int NB_ITER = 1000000;
         int currIter = 0;
         while(currIter < NB_ITER) {
             Collections.shuffle(agents);
