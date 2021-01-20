@@ -6,7 +6,7 @@ Dans le cadre de notre cours sur les Systèmes Multi-Agents, nous avons eu l’o
 
 Le diagramme de classes est présenté ci-dessous
 
-![uml_tp-tri-collectif](resources/uml.png)
+![uml_tp-tri-collectif](resources/uml_class_diagram.png)
 
 ###Exemples d'exécution
 
