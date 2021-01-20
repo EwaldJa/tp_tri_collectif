@@ -6,7 +6,7 @@ Dans le cadre de notre cours sur les Systèmes Multi-Agents, nous avons eu l’o
 
 Le diagramme de classes est présenté ci-dessous
 
-![uml_tp-tri-collectif](resources/uml.png)
+![uml__tp-tri-collectif](resources/um.png)
 
 ### Exemples d'exécution
 
@@ -14,9 +14,9 @@ Voici un exemple d'exécution avec le mode Mémoire et Biais de reconnaissance d
 
 Environnement initial :
 
-![init-exec_tp-tri-collectif](resources/init_exec.png)
+![init-exec__tp-tri-collectif](resources/init_exec.png)
 
 
 Environnement final :
 
-![end-exec_tp-tri-collectif](resources/end_exec.png)
+![end-exec__tp-tri-collectif](resources/end_exec.png)
