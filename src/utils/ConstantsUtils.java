@@ -14,16 +14,3 @@ public class ConstantsUtils {
     public static final boolean USE_ERROR = true;
     public static final double ERROR_RATIO = 0.15;
 }
-/**
- * Construit un environnement avec toutes les valeurs qui seront utilisées
- * @param sizeX la taille sur l'axe Est-Ouest de l'environnement
- * @param sizeY la taille sur l'axe Nord-Sud de l'environnement
- * @param nbObjA le nombre d'objets de type A à ajouter sur le monde
- * @param nbObjB le nombre d'objets de type B à ajouter sur le monde
- * @param nbAgent le nombre d'agents à ajouter sur le monde pour trier
- * @param agentRange la distance (nombre de case) que parcourent les agents à chaque déplacement
- * @param kPlus constante utilisée dans le calcule de la probabilité de prise de l'objet situé sur la case occupée par un agent
- * @param kMinus constante utilisée dans le calcule de la probabilité de dépôt de l'objet porté par un agent sur la case qu'il occupe
- * @param useError flag définissant l'utilisation du mode mémoire+taux d'erreur ou du mode naïf
- * @param errorRatio taux d'erreur dans la reconnaissance des objets
- */
